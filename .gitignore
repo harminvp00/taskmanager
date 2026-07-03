@@ -21,4 +21,4 @@ Thumbs.db
 eslint.config.js
 
 # ignore file from server
-index.js
+server/index.js

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { createUser, findOAuthUser } from "../auth/auth.repo.js";
+import { createUser, findByEmail, updateUserById } from "../auth/auth.repo.js";
 
 const saveUserinDB = async (user) => {
   const newUser = await createUser({
@@ -53,13 +53,42 @@ export const getUserFromGoogle = async (access_token) => {
   );
 
   const gogoleUser = await userResponse.json();
-  const userExist = await findOAuthUser("google", `${gogoleUser.id}`);
+  const userExist = await findByEmail(gogoleUser.email);
 
+  // check same mail exist into the document or not 
   if (!userExist) {
     const result = await saveUserinDB(gogoleUser);
     return result;
   }
 
+  // if provide not set then set that before return 
+  if(userExist.provider !== 'google'){
+    const g_user = await updateUserById(userExist._id, {
+      passwordHash: null,
+      verify: true,
+      otp: null,
+      otpExpiresAt: null,
+      resetToken: null,
+      resetTokenExpiresAta: null,
+      resetTokenUsed: false,
+      provider: 'google',
+      providerId: gogoleUser.id
+    })
+
+    return {
+    message: "existing user login",
+    user: {
+      id: g_user._id,
+      username: g_user.username,
+      email: g_user.email,
+      provider: g_user.provider,
+      role: g_user.role,
+      verify: g_user.verify,
+    },
+  };
+  }
+
+  // if provider set then direct return 
   return {
     message: "existing user login",
     user: {

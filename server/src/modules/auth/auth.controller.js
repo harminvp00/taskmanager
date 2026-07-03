@@ -42,7 +42,6 @@ export const verifyEmail = async (req, res, next) => {
     if (!email) {
       return next(createHttpError(400, "provide a valid email"));
     }
-
     const result = await services.verifyEmail(email);
 
     return res.status(200).json(result);
@@ -59,7 +58,7 @@ export const loginUser = async (req, res, next) => {
       return next(createHttpError(400, "already logged in!"));
     }
 
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
     if (!email || !password) {
       return next(createHttpError(400, "provide a valid email and password"));
@@ -69,6 +68,7 @@ export const loginUser = async (req, res, next) => {
     const userAgent = req.headers["user-agent"];
     const ipAddress = req.ip;
 
+    console.log(email, password)
     const responseData = await services.login(
       email,
       password,

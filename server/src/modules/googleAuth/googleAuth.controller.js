@@ -22,7 +22,6 @@ export const googleCallback = async (req, res) => {
     const accessToken = await exchangeForToken(code.code);
     const response = await getUserFromGoogle(accessToken.access_token);
     
-    console.log('pass')
     const token = getAccessToken(
       response?.user?.id,
       response?.user?.email,

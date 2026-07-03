@@ -1,14 +1,40 @@
 
 ## Task Manager
-### recent changes 
 
-#### by ashish-v6
-Server:
-- Updates Auth Modules
-- Updates server response
-- Used middleware to track errors
+# Tech Stack 
+- ReactJS + Vite
+- Tailwind
+- ExpressJS
+- Mongoose
 
-#### by harminvp00
-- Server: Added simple rate limit function
-- Server: Added OAuth for GitHub
-- Client: Simple page to test OAuth 
+# Libraries Used
+- react-router-dom
+- Axios
+- bcryptjs
+- cookie-parser
+- CORS
+- crypto
+- dotenv
+- Express
+- express-rate-limit
+- express-validator
+- http-errors
+- jsonwebtoken
+- Mongoose
+- Multer
+- Nodemailer
+- Nodemon
+
+
+### implemented features records
+- auth services
+- oauth service (gogole, github)
+- sessions
+- Login UI
+
+### Develoepr 
+| Name | Domain | Contact
+| ----- |------|--------
+| Ashish Vekariya | Full Stack | ashishvekariya165@gmail.com
+| Harmin Vekariya | Full Stack | vekariyaharmin96@gmail.com
+
