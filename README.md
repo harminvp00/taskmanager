@@ -32,7 +32,7 @@
 - sessions
 - Login UI
 
-### Develoepr 
+### Develoepers
 | Name | Domain | Contact
 | ----- |------|--------
 | Ashish Vekariya | Full Stack | ashishvekariya165@gmail.com
