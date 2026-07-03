@@ -1,48 +1,38 @@
+
+// User Model 
 import User from "./auth.model.js";
 
-// find user based on id
+/**
+ * @param {string} email 
+ * @returns a user if it is exits into the database otherwise null
+ */
 export const findByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
-// To Create User Only
+/**
+ * @param {Object} payload 
+ * @returns create a user document and save it into the database
+ */
 export const createUser = async (payload) => {
   return await User.create(payload);
 };
 
+
 /**
- * Change Password
- * Add reset token
- * Add otp code
- * Forget/Change Password
+ * @param {ObjectId} id 
+ * @param {Object} updates 
+ * @returns return a updated user after finding it through id and updated the records
  */
 export const updateUserById = async (id, updates) => {
   return await User.findByIdAndUpdate(id, updates, { new: true });
 };
 
-/**
- * Bug: this query method always return true, our service expect a user to get user._id, but repo always return true, do not return true just return user object, then service will automatically know what to do
+/** 
+ * @param {string} tokenHash 
+ * @returns user whihch token hash match, also date is not expired and refreshtoken is false.
  */
 export const findUserByToken = async (tokenHash) => {
-  /**
-   * this function return a user which satify this three conditions
-   * 1. tokenHash match true
-   * 2. token not expire
-   * 3. token used is false
-   */
-
-  // bug
-  // await User.findOne({
-  //   resetToken: tokenHash,
-  //   resetTokenExpiresAt: { $gt: Date.now() },
-  //   resetTokenUsed: false,
-  // });
-
-  // return {
-  //   success: true,
-  //   message: "password is reset!",
-  // };
-
   return await User.findOne({
     resetToken: tokenHash,
     resetTokenExpiresAt: { $gt: Date.now() },
@@ -50,10 +40,15 @@ export const findUserByToken = async (tokenHash) => {
   });
 };
 
-
-export const findOAuthUser = async (provider, providerId) => {
-  return await User.findOne({
-    provider,
-    providerId,
-  });
-};
+/**
+ * @param {string} provider 
+ * @param {number} providerId 
+ * @returns return user if there is a user with providerID and provideName
+ * @harminvp00 commented because this query is not useful for yet, but still here until we sure to remove this from entire project.
+ */
+// export const findOAuthUser = async (provider, providerId) => {
+//   return await User.findOne({
+//     provider,
+//     providerId,
+//   });
+// };

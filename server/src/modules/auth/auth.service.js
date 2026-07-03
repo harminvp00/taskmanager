@@ -1,5 +1,7 @@
+
 "use strict";
 
+// Models for auth and sessions
 import sessionModel from "../session/session.model.js";
 import authModel from "./auth.model.js";
 
@@ -7,7 +9,7 @@ import authModel from "./auth.model.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
-// repository method (odm)
+// repository method (odm) (location src/modules/auth/auth.repo.js)
 import {
   findByEmail,
   createUser,
@@ -15,12 +17,13 @@ import {
   findUserByToken,
 } from "./auth.repo.js";
 
-// utils
+// src/utils.token.js
 import {
   getAccessToken,
   getRefreshToken,
   hashToken,
 } from "../../utils/tokens/token.js";
+// src/utils/resetToken.js
 import { getResetToken } from "../../utils/tokens/resetToken.js";
 
 // utils -> mails
@@ -135,6 +138,7 @@ export const verifyEmail = async (email) => {
     throw new Error("User is not Registered!");
   }
 
+  // good move, inspect later complete flow
   if (user.verify) {
     throw new Error("Client Error! User is Verified");
   }
@@ -181,6 +185,7 @@ export const login = async (email, password, userAgent, ipAddress) => {
     throw new Error("User is not Registered!");
   }
 
+  console.log(user)
   // match pass
   const passwordHash = await bcrypt.compare(password, user.passwordHash);
   if (!passwordHash) {
@@ -241,10 +246,10 @@ export const rotateToken = async (oldRefreshToken) => {
     revoked: false,
   });
 
-  console.log(session);
   if (!session) {
     throw new Error("Session not found or revoked");
   }
+
   //when we add delete user funtionality
   //the session will be also deleted hence no need to verify user
   const user = await authModel.findById(session.userId);
@@ -274,7 +279,11 @@ export const rotateToken = async (oldRefreshToken) => {
   };
 };
 
-//remaining
+
+/**
+ * @param {string} email 
+ * @returns a user if reset link send successfully
+ */
 export const forget = async (email) => {
   const user = await findByEmail(email);
   if (!user) {
@@ -288,6 +297,7 @@ export const forget = async (email) => {
   await updateUserById(user._id, {
     resetToken: tokenHash,
     resetTokenExpiresAt: new Date(Date.now() + 10 * 60 * 1000),
+    resetTokenUsed: false
   });
 
   await resetPasswordMail(user?.username, user?.email, token);
@@ -298,13 +308,18 @@ export const forget = async (email) => {
   };
 };
 
+/**
+ * @param {string} token 
+ * @param {string} newPassword 
+ * @returns a acknowledgement that the password is resets
+ */
 export const reset = async (token, newPassword) => {
   const tokenHash = getResetToken(token);
 
   const user = await findUserByToken(tokenHash);
 
   if (!user) {
-    throw new Error("Invalid Token ");
+    throw new Error("Invalid, cannot allow signin");
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 10);
@@ -313,7 +328,7 @@ export const reset = async (token, newPassword) => {
     passwordHash: passwordHash,
     resetToken: null,
     resetTokenExpiresAt: null,
-    resetTokenUsed: true,
+    resetTokenUsed: false,
   });
 
   await informPasswordReset(
@@ -327,6 +342,7 @@ export const reset = async (token, newPassword) => {
     message: "reset password successfully!",
   };
 };
+
 
 export const change = async (email, oldPass, newPass) => {
   const user = await findByEmail(email);

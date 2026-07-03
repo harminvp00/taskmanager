@@ -25,11 +25,13 @@ export const gitCallback = async (req, res) => {
     const AccessToken = await getAccessTokenFromGitHub(code);
     const response = await getUserFromGitHub(AccessToken);
     
+    console.log(response)
     const token = getAccessToken(
       response?.user?.id, 
       response?.user?.email, 
       response?.user?.role
     );
+
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -37,7 +39,9 @@ export const gitCallback = async (req, res) => {
       sameSite: "lax",
     });
 
-    return res.redirect("http://localhost:5173/");
+
+
+    return res.redirect("http://localhost:5173/dashboard");
 
   } catch(error){
     return res.status(500).json({
