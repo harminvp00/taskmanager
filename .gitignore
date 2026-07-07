@@ -20,5 +20,7 @@ Thumbs.db
 *.log   
 eslint.config.js
 
-# ignore file from server
+
+# ignore file from server by @harminvp00
 server/index.js
+logs.md

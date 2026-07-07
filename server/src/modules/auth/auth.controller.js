@@ -1,18 +1,18 @@
 import createHttpError from "http-errors";
 import * as services from "./auth.service.js";
-
+import * as valid from "../../utils/validations/auth.valid.js";
 //complete
 export const registerUser = async (req, res, next) => {
   try {
-    if (!req.body.username || !req.body.email || !req.body.password) {
-      return next(createHttpError(400, "invalid fields"));
+    const validation = valid.registerValidation.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
 
-    const result = await services.register(
-      req.body.username,
-      req.body.email,
-      req.body.password,
-    );
+    const { username, email, password } = validation.data;
+
+    const result = await services.register(username, email, password);
 
     return res.status(201).json(result);
   } catch (error) {
@@ -23,10 +23,14 @@ export const registerUser = async (req, res, next) => {
 //complete
 export const verifyUser = async (req, res, next) => {
   try {
-    if (!req.body.email || !req.body.otp) {
-      return next(createHttpError(400, "invalid fields"));
+    const validation = valid.verifyOtpValidation.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
-    const result = await services.verify(req.body.email, req.body.otp);
+
+    const { email, otp } = validation.data;
+    const result = await services.verify(email, otp);
 
     return res.status(200).json(result);
   } catch (error) {
@@ -37,11 +41,13 @@ export const verifyUser = async (req, res, next) => {
 //complete
 export const verifyEmail = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const validation = valid.EmailSchema.safeParse(req.body.email);
 
-    if (!email) {
-      return next(createHttpError(400, "provide a valid email"));
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
+
+    const email = validation.data;
     const result = await services.verifyEmail(email);
 
     return res.status(200).json(result);
@@ -53,22 +59,22 @@ export const verifyEmail = async (req, res, next) => {
 //complete
 export const loginUser = async (req, res, next) => {
   try {
-
-    if(req.cookies && req.cookies.refreshToken) {
+    if (req.cookies && req.cookies.refreshToken) {
       return next(createHttpError(400, "already logged in!"));
     }
 
-    let { email, password } = req.body;
+    const validation = valid.loginValidation.safeParse(req.body);
 
-    if (!email || !password) {
-      return next(createHttpError(400, "provide a valid email and password"));
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
+
+    let { email, password } = validation.data;
 
     //you can check this fields in future for more security
     const userAgent = req.headers["user-agent"];
     const ipAddress = req.ip;
 
-    console.log(email, password)
     const responseData = await services.login(
       email,
       password,
@@ -85,14 +91,14 @@ export const loginUser = async (req, res, next) => {
     });
 
     //send response
-    res.json({
+    res.status(200).json({
       success: responseData.success,
-      message : responseData.message,
+      message: responseData.message,
       user: {
         userId: responseData.user.id,
         username: responseData.user.username,
         userMail: responseData.user.email,
-        verify : responseData.user.verify,
+        verify: responseData.user.verify,
         accessToken: responseData.user.accessToken,
       },
     });
@@ -103,7 +109,7 @@ export const loginUser = async (req, res, next) => {
 
 export const rotateToken = async (req, res, next) => {
   try {
-    if(!req.cookies || !req.cookies.refreshToken) {
+    if (!req.cookies || !req.cookies.refreshToken) {
       return next(createHttpError(400, "User must have to login First"));
     }
 
@@ -111,42 +117,41 @@ export const rotateToken = async (req, res, next) => {
 
     const response = await services.rotateToken(refreshToken);
 
-    res.cookie("refreshToken",response.user.newRefreshToken,{
-      httpOnly : true,
-      secure : process.env.NODE_ENV === "production",
-      sameSite : "strict",
-      maxAge : 7 * 24 * 60 * 60 * 1000, //7d
-    })
+    res.cookie("refreshToken", response.user.newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, //7d
+    });
 
     res.status(201).json({
-      success : response.success,
-      message : response.message,
-      user : {
-        id : response.user.id,
-        email : response.user.email,
+      success: response.success,
+      message: response.message,
+      user: {
+        id: response.user.id,
+        email: response.user.email,
         verify: response.user.verify,
-        accessToken : response.user.accessToken,
-      }
-    })
-  }
-  catch (error) {
+        accessToken: response.user.accessToken,
+      },
+    });
+  } catch (error) {
     next(error);
   }
-}
+};
 
 //remainings
 
 export const forgetPassword = async (req, res) => {
   try {
-    const { email } = req.body;
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "provide a valid email",
-      });
+    const validation = valid.EmailSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
+
+    const email = validation.data;
     const response = await services.forget(email);
-    res.json(response);
+    res.status(200).json(response);
   } catch (error) {
     res.json({ error: error.message });
   }
@@ -155,21 +160,13 @@ export const forgetPassword = async (req, res) => {
 export const resetPassword = async (req, res, next) => {
   try {
     const token = req.query.token;
-    const { newPassword } = req.body;
+    const validation = valid.PasswordSchema.safeParse(req.body.newPassword);
 
-    if (!newPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Enter a valid password",
-      });
+    if (!validation.success) {
+      return next(createHttpError(400, validation.error.issues[0].message));
     }
 
-    if (newPassword.length < 5) {
-      return res.status(400).json({
-        success: false,
-        message: "password is too weak",
-      });
-    }
+    const newPassword = validation.data;
 
     if (!token) {
       return res.status(500).json({ message: "token is invalid" });
@@ -185,27 +182,31 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
-export const changePassword = async (req, res) => {
+export const changePassword = async (req, res, next) => {
   try {
-    const email = req.user.email;
-    const { oldPass, newPass } = req.body;
+     
+    const passValidation = valid.changePasswordValidation.safeParse(req.body);
 
-    if (!oldPass || !newPass) {
-      return res.status(400).json({ message: "passwords are not accepted" });
+    if(!passValidation.success){
+      return next(createHttpError(
+        400,
+        passValidation.error.issues[0].message
+      ))
     }
 
-    const response = await services.change(email, oldPass, newPass);
+    const { oldPass, newPass } = passValidation.data;
+
+    const response = await services.change(req.user.email, oldPass, newPass);
     res.send(response);
   } catch (error) {
-    // update me later
-    console.error(error.message);
+      next(error)
   }
 };
 
 //complete
-export const logoutUser = async (req, res ,next) => {
+export const logoutUser = async (req, res, next) => {
   try {
-    if(!req.cookies || !req.cookies.refreshToken) {
+    if (!req.cookies || !req.cookies.refreshToken) {
       return next(createHttpError(400, "User must have to login First"));
     }
 

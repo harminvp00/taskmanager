@@ -1,14 +1,14 @@
 
-## Task Manager
+# Task Manager
 
-# Tech Stack 
+## Tech Stack 
 - ReactJS + Vite
 - Tailwind
 - ExpressJS
 - Mongoose
 
-# Libraries Used
-- react-router-dom
+## Libraries Used
+- React Router Dom
 - Axios
 - bcryptjs
 - cookie-parser
@@ -24,13 +24,15 @@
 - Multer
 - Nodemailer
 - Nodemon
+- Zod
 
 
-### implemented features records
+## Implemented features records
 - auth services
 - oauth service (gogole, github)
 - sessions
 - Login UI
+- validation using zod
 
 ### Develoepers
 | Name | Domain | Contact
