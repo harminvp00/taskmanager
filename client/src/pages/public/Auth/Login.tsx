@@ -1,11 +1,13 @@
-const Login = () => {
-  const styles = {};
 
-  function loginUsingGit() {
+
+
+const Login = () => {
+
+  function loginUsingGit(): void {
     window.location.href = "http://localhost:3000/gitAuth/login";
   }
 
-  function loginUsingGoogle() {
+  function loginUsingGoogle(): void {
     window.location.href = "http://localhost:3000/googleAuth/login";
   }
 

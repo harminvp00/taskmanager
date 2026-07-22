@@ -38,9 +38,6 @@ export const gitCallback = async (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-
-
-
     return res.redirect("http://localhost:5173/dashboard");
 
   } catch(error){

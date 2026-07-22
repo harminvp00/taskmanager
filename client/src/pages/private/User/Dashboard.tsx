@@ -1,7 +1,9 @@
 
+import React from "react"
 
 const Dashboard = () => {
-  const styles =  {
+
+  const Styles: React.CSSProperties =  {
     display: 'flex', 
     flexDirection: 'column',
     gap: '10px',
@@ -11,12 +13,8 @@ const Dashboard = () => {
     alignItems:'center'
   }
 
-  function loginUsingGit(){
-    window.location.href = "http://localhost:3000/gitAuth/login"
-  }
-
   return (
-    <div style={styles}>
+    <div style={Styles}>
       <p>
         <b>
             Dashboard Service
