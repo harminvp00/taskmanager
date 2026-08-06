@@ -1,16 +1,6 @@
-
-
-
+import { OAuthBox } from "../../../Components/OAuthBox";
+import { Link } from "react-router-dom";
 const Login = () => {
-
-  function loginUsingGit(): void {
-    window.location.href = "http://localhost:3000/gitAuth/login";
-  }
-
-  function loginUsingGoogle(): void {
-    window.location.href = "http://localhost:3000/googleAuth/login";
-  }
-
   return (
     <div className="login-panel">
       <div className="login-card">
@@ -34,20 +24,20 @@ const Login = () => {
           </form>
         </div>
 
-        <div className="directLogin">
+        <OAuthBox />
 
-          {/*  google oauth caller */}
-          <button onClick={() => loginUsingGoogle()}>
-            <img src="/google.png" alt="" />
-            <span>login using google</span>
-          </button>
-
-          {/* github oauth caller */}
-          <button onClick={() => loginUsingGit()}>
-            <img src="/github.png" alt="" />
-            <span>login using github</span>
-          </button>
+        <div className="box">
+          dont have an account
+          <Link
+            style={{
+              textDecoration: "none",
+            }}
+            to="/register"
+          >
+            Create One
+          </Link>
         </div>
+
       </div>
     </div>
   );

@@ -126,3 +126,9 @@ button:hover {
   width: 25px;
   height: 25px;
 }
+
+
+.box{
+  padding: 10px 15px;
+  text-align: center;
+}
