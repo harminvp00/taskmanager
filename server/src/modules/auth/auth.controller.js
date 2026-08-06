@@ -4,14 +4,17 @@ import * as valid from "../../utils/validations/auth.valid.js";
 //complete
 export const registerUser = async (req, res, next) => {
   try {
-    const validation = valid.registerValidation.safeParse(req.body);
 
+    
+    const validation = valid.registerValidation.safeParse(req.body);
+    
     if (!validation.success) {
       return next(createHttpError(400, validation.error.issues[0].message));
     }
-
+    
+    
     const { username, email, password } = validation.data;
-
+    
     const result = await services.register(username, email, password);
 
     return res.status(201).json(result);

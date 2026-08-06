@@ -49,6 +49,7 @@ export const register = async (username, email, password) => {
     );
   }
 
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
